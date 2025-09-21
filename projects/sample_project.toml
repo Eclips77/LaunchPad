@@ -1,0 +1,33 @@
+name = "LaunchPad Dev"
+icon = "assets/icons/launchpad.svg" # Placeholder icon path
+tags = ["python", "pyside6", "qml", "development"]
+default_profile_name = "dev"
+
+[profiles.dev]
+name = "dev"
+ide = "vscode"
+folders = [
+    "~/dev/LaunchPad/src",
+    "~/dev/LaunchPad/tests"
+]
+files = [
+    "~/dev/LaunchPad/README.md"
+]
+
+[[profiles.dev.urls]]
+label = "PySide6 Docs"
+url = "https://doc.qt.io/qtforpython/"
+
+[[profiles.dev.urls]]
+label = "GitHub Repo"
+url = "https://github.com/user/launchpad" # Placeholder URL
+
+[[profiles.dev.commands]]
+title = "Run Tests"
+command = "python -m pytest"
+directory = "~/dev/LaunchPad"
+
+[[profiles.dev.commands]]
+title = "Start Application"
+command = "python src/main.py"
+directory = "~/dev/LaunchPad"
