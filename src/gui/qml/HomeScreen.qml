@@ -7,7 +7,6 @@ Item {
     id: root
     property var theme
     property var projectsModel
-    property var projectDetails
     property var tagOptions: []
     signal createProjectRequested()
     signal openProject(string projectKey)
