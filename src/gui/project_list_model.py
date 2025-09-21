@@ -64,7 +64,7 @@ class ProjectListModel(QAbstractListModel):
         if role == ProjectListModel.LastProfileRole:
             return project.last_profile
         if role == ProjectListModel.TagsRole:
-            return ", ".join(project.tags)
+            return project.tags
         if role == ProjectListModel.StatusRole:
             return project.status
         if role == ProjectListModel.FavoriteRole:
@@ -168,7 +168,7 @@ class ProjectListModel(QAbstractListModel):
             "name": project.name,
             "icon": project.icon,
             "lastProfile": project.last_profile,
-            "tags": ", ".join(project.tags),
+            "tags": project.tags,
             "status": project.status,
             "favorite": project.favorite,
             "active": project.active,

@@ -212,7 +212,7 @@ class Project:
             "name": self.name,
             "icon": self.icon,
             "lastProfile": self.last_profile,
-            "tags": ", ".join(self.tags),
+            "tags": list(self.tags),
             "status": self.status,
             "favorite": self.favorite,
             "active": self.active,
