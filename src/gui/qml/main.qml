@@ -10,6 +10,7 @@ ApplicationWindow {
     visible: true
     title: "LaunchPad"
     property bool darkMode: true
+    readonly property var store: projectStore
 
     QtObject {
         id: theme
@@ -101,11 +102,14 @@ ApplicationWindow {
     }
 
     function updateTagOptions() {
+        if (!projectModel)
+            return
         var seen = {}
         for (var i = 0; i < projectListModel.count; ++i) {
             var entry = projectListModel.get(i)
             var tagText = entry && entry.tags ? entry.tags : ""
             var tags = tagText.split(",")
+
             for (var j = 0; j < tags.length; ++j) {
                 var tag = tags[j].trim()
                 if (tag.length)
@@ -120,6 +124,13 @@ ApplicationWindow {
     }
 
     Component.onCompleted: loadProjects()
+    Connections {
+        target: projectModel
+        function onDataChanged() { window.updateTagOptions() }
+        function onModelReset() { window.updateTagOptions() }
+        function onRowsInserted() { window.updateTagOptions() }
+        function onRowsRemoved() { window.updateTagOptions() }
+    }
 
     header: ToolBar {
         padding: 12
@@ -166,14 +177,15 @@ ApplicationWindow {
         id: homeComponent
         HomeScreen {
             theme: theme
-            projectsModel: projectListModel
-            tagOptions: window.tagOptions
-            projectDetails: window.projectDetails
+            projectsModel: window.store ? window.store.projectsModel : null
+            tagOptions: window.store ? window.store.tagOptions : []
+            projectDetails: window.store ? window.store.projectDetails : ({})
             onCreateProjectRequested: stackView.push(wizardComponent)
             onOpenProject: function(projectKey) {
-                var details = window.projectDetails[projectKey]
+                var details = window.store && window.store.projectDetails ? window.store.projectDetails[projectKey] : null
                 if (!details)
                     details = { name: "Unknown", components: [] }
+
                 stackView.push({ item: projectComponent, properties: { projectData: details } })
             }
             onShowGlobalDashboard: stackView.push(globalComponent)
@@ -188,22 +200,13 @@ ApplicationWindow {
             theme: theme
             onCancelRequested: stackView.pop()
             onCompleted: function(summary) {
-                var slug = summary.key
-                var displayTags = summary.tags.join(", ")
-                projectListModel.append({
-                    key: slug,
-                    name: summary.name,
-                    icon: summary.icon,
-                    lastProfile: summary.defaultProfile,
-                    tags: displayTags,
-                    status: "Ready",
-                    favorite: false,
-                    active: false,
-                    usageHours: 0
-                })
-                window.projectDetails[slug] = summary
-                window.updateTagOptions()
                 stackView.pop()
+                if (projectModel.addProject(summary)) {
+                    window.updateTagOptions()
+                    stackView.pop()
+                } else {
+                    console.warn("Failed to add project", summary)
+                }
             }
         }
     }
@@ -221,13 +224,14 @@ ApplicationWindow {
         id: globalComponent
         GlobalDashboard {
             theme: theme
-            projectsModel: projectListModel
-            projectDetails: window.projectDetails
+            projectsModel: window.store ? window.store.projectsModel : null
+            projectDetails: window.store ? window.store.projectDetails : ({})
             onBackRequested: stackView.pop()
             onOpenProject: function(projectKey) {
-                var details = window.projectDetails[projectKey]
+                var details = window.store && window.store.projectDetails ? window.store.projectDetails[projectKey] : null
                 if (!details)
                     details = { name: "Unknown", components: [] }
+
                 stackView.push({ item: projectComponent, properties: { projectData: details } })
             }
         }

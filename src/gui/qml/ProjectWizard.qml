@@ -164,6 +164,14 @@ Item {
         summary.history = [{ time: "Now", description: "Project created" }]
         summary.healthChecks = []
 
+        if (typeof projectStore !== "undefined" && projectStore && projectStore.create_from_summary) {
+            var created = projectStore.create_from_summary(summary)
+            if (!created) {
+                errorMessage = "Failed to save project. Please try again."
+                return
+            }
+        }
+
         completed(summary)
     }
 
