@@ -1,7 +1,11 @@
-import sys
 import os
+import sys
+
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
+
+from core.database import ProjectDatabase
+from gui.project_store import ProjectStore
 
 if __name__ == "__main__":
     # Set the QtQuick Controls style
@@ -9,6 +13,10 @@ if __name__ == "__main__":
 
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
+
+    database = ProjectDatabase()
+    project_store = ProjectStore(database=database)
+    engine.rootContext().setContextProperty("projectStore", project_store)
 
     # Construct the absolute path to the main QML file
     qml_file = os.path.join(os.path.dirname(__file__), "gui", "qml", "main.qml")
