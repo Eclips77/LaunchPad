@@ -10,6 +10,7 @@ ApplicationWindow {
     visible: true
     title: "LaunchPad"
     property bool darkMode: true
+    readonly property var store: projectStore
 
     QtObject {
         id: theme
@@ -121,13 +122,15 @@ ApplicationWindow {
         id: homeComponent
         HomeScreen {
             theme: theme
-            projectsModel: projectModel
-            tagOptions: window.tagOptions
+            projectsModel: window.store ? window.store.projectsModel : null
+            tagOptions: window.store ? window.store.tagOptions : []
+            projectDetails: window.store ? window.store.projectDetails : ({})
             onCreateProjectRequested: stackView.push(wizardComponent)
             onOpenProject: function(projectKey) {
-                var details = projectModel.getProject(projectKey)
-                if (!details || !details.key)
-                    details = { key: projectKey, name: "Unknown", components: [] }
+                var details = window.store && window.store.projectDetails ? window.store.projectDetails[projectKey] : null
+                if (!details)
+                    details = { name: "Unknown", components: [] }
+
                 stackView.push({ item: projectComponent, properties: { projectData: details } })
             }
             onShowGlobalDashboard: stackView.push(globalComponent)
@@ -141,6 +144,7 @@ ApplicationWindow {
             theme: theme
             onCancelRequested: stackView.pop()
             onCompleted: function(summary) {
+                stackView.pop()
                 if (projectModel.addProject(summary)) {
                     window.updateTagOptions()
                     stackView.pop()
@@ -163,12 +167,14 @@ ApplicationWindow {
         id: globalComponent
         GlobalDashboard {
             theme: theme
-            projectsModel: projectModel
+            projectsModel: window.store ? window.store.projectsModel : null
+            projectDetails: window.store ? window.store.projectDetails : ({})
             onBackRequested: stackView.pop()
             onOpenProject: function(projectKey) {
-                var details = projectModel.getProject(projectKey)
-                if (!details || !details.key)
-                    details = { key: projectKey, name: "Unknown", components: [] }
+                var details = window.store && window.store.projectDetails ? window.store.projectDetails[projectKey] : null
+                if (!details)
+                    details = { name: "Unknown", components: [] }
+
                 stackView.push({ item: projectComponent, properties: { projectData: details } })
             }
         }
