@@ -10,7 +10,7 @@ Rectangle {
     property string lastProfile: ""
     property string status: ""
     property bool favorite: false
-    property string tags: ""
+    property var tags: []
     property var theme
     signal quickLaunch()
     signal openDetails()
@@ -76,7 +76,7 @@ Rectangle {
             width: parent.width
             spacing: 6
             Repeater {
-                model: tagList
+                model: card.tags
                 delegate: Rectangle {
                     radius: 6
                     color: theme.surfaceVariant
@@ -94,7 +94,7 @@ Rectangle {
                     }
                 }
             }
-            visible: tagList.length > 0
+            visible: card.tags.length > 0
         }
 
         Rectangle {
@@ -147,19 +147,6 @@ Rectangle {
         onTapped: card.openDetails()
     }
 
-    property var tagList: []
-
-    function parseTags(value) {
-        var parts = value ? value.split(",") : []
-        var clean = []
-        for (var i = 0; i < parts.length; ++i) {
-            var tag = parts[i].trim()
-            if (tag.length)
-                clean.push(tag)
-        }
-        return clean
-    }
-
     function colorForStatus(value) {
         if (!value)
             return theme.muted
@@ -172,8 +159,4 @@ Rectangle {
             return theme.warning
         return theme.accent
     }
-
-    onTagsChanged: tagList = parseTags(tags)
-
-    Component.onCompleted: tagList = parseTags(tags)
 }
