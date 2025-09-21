@@ -1,7 +1,10 @@
-import sys
 import os
+import sys
+
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
+
+from core.launcher import LaunchService
 
 if __name__ == "__main__":
     # Set the QtQuick Controls style
@@ -9,6 +12,9 @@ if __name__ == "__main__":
 
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
+    context = engine.rootContext()
+    launch_service = LaunchService()
+    context.setContextProperty("projectLauncher", launch_service)
 
     # Construct the absolute path to the main QML file
     qml_file = os.path.join(os.path.dirname(__file__), "gui", "qml", "main.qml")

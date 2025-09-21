@@ -13,6 +13,7 @@ Item {
     signal openProject(string projectKey)
     signal showGlobalDashboard()
     signal toggleTheme()
+    signal projectStateUpdated(var projectDetail, var overviewData)
 
     property string searchText: ""
     property bool favoritesOnly: false
@@ -263,7 +264,14 @@ Item {
                                             favorite: model.favorite
                                             tags: model.tags
                                             theme: root.theme
-                                            onQuickLaunch: root.openProject(model.key)
+                                            onQuickLaunch: function(result) {
+                                                if (result && result.project && result.overview) {
+                                                    root.projectStateUpdated(result.project, result.overview)
+                                                    root.openProject(result.project.key)
+                                                } else {
+                                                    root.openProject(model.key)
+                                                }
+                                            }
                                             onOpenDetails: root.openProject(model.key)
                                             onFavoriteToggled: root.toggleFavorite(index)
                                         }
@@ -295,7 +303,14 @@ Item {
                                             favorite: model.favorite
                                             tags: model.tags
                                             theme: root.theme
-                                            onQuickLaunch: root.openProject(model.key)
+                                            onQuickLaunch: function(result) {
+                                                if (result && result.project && result.overview) {
+                                                    root.projectStateUpdated(result.project, result.overview)
+                                                    root.openProject(result.project.key)
+                                                } else {
+                                                    root.openProject(model.key)
+                                                }
+                                            }
                                             onOpenDetails: root.openProject(model.key)
                                             onFavoriteToggled: root.toggleFavorite(index)
                                         }
