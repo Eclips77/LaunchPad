@@ -1,18 +1,23 @@
 import os
 import sys
-
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 
 from core.database import ProjectDatabase
 from gui.project_store import ProjectStore
+from gui import ProjectListModel
 
 if __name__ == "__main__":
     # Set the QtQuick Controls style
     os.environ["QT_QUICK_CONTROLS_STYLE"] = "Basic"
 
     app = QGuiApplication(sys.argv)
+
+    database = ProjectDatabase()
+    model = ProjectListModel(database)
+
     engine = QQmlApplicationEngine()
+    engine.rootContext().setContextProperty("projectModel", model)
 
     database = ProjectDatabase()
     project_store = ProjectStore(database=database)
@@ -28,6 +33,9 @@ if __name__ == "__main__":
     if not engine.rootObjects():
         print("Error: Could not load QML file.")
         sys.exit(-1)
+
+    # Close the database connection when the app exits
+    app.aboutToQuit.connect(database.close)
 
     # Execute the application's event loop
     sys.exit(app.exec())

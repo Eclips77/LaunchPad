@@ -43,6 +43,40 @@ ApplicationWindow {
         return theme.accent
     }
 
+    property var tagOptions: []
+
+    function updateTagOptions() {
+        if (!projectModel)
+            return
+        var seen = {}
+        for (var i = 0; i < projectModel.count; ++i) {
+            var project = projectModel.get(i)
+            if (!project || !project.tags)
+                continue
+            var tags = project.tags.split(',')
+            for (var j = 0; j < tags.length; ++j) {
+                var tag = tags[j].trim()
+                if (tag.length)
+                    seen[tag] = true
+            }
+        }
+        var list = []
+        for (var key in seen)
+            list.push(key)
+        list.sort()
+        tagOptions = list
+    }
+
+    Connections {
+        target: projectModel
+        function onDataChanged() { window.updateTagOptions() }
+        function onModelReset() { window.updateTagOptions() }
+        function onRowsInserted() { window.updateTagOptions() }
+        function onRowsRemoved() { window.updateTagOptions() }
+    }
+
+    Component.onCompleted: updateTagOptions()
+
     header: ToolBar {
         padding: 12
         contentHeight: implicitHeight
@@ -96,6 +130,7 @@ ApplicationWindow {
                 var details = window.store && window.store.projectDetails ? window.store.projectDetails[projectKey] : null
                 if (!details)
                     details = { name: "Unknown", components: [] }
+
                 stackView.push({ item: projectComponent, properties: { projectData: details } })
             }
             onShowGlobalDashboard: stackView.push(globalComponent)
@@ -110,6 +145,12 @@ ApplicationWindow {
             onCancelRequested: stackView.pop()
             onCompleted: function(summary) {
                 stackView.pop()
+                if (projectModel.addProject(summary)) {
+                    window.updateTagOptions()
+                    stackView.pop()
+                } else {
+                    console.warn("Failed to add project", summary)
+                }
             }
         }
     }
@@ -133,6 +174,7 @@ ApplicationWindow {
                 var details = window.store && window.store.projectDetails ? window.store.projectDetails[projectKey] : null
                 if (!details)
                     details = { name: "Unknown", components: [] }
+
                 stackView.push({ item: projectComponent, properties: { projectData: details } })
             }
         }
