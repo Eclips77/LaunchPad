@@ -43,17 +43,73 @@ ApplicationWindow {
         return theme.accent
     }
 
+    ListModel {
+        id: projectListModel
+    }
+
+    property var projectDetails: ({})
+
     property var tagOptions: []
+
+    function indexOfProject(key) {
+        if (!projectListModel)
+            return -1
+        for (var i = 0; i < projectListModel.count; ++i) {
+            var item = projectListModel.get(i)
+            if (item.key === key)
+                return i
+        }
+        return -1
+    }
+
+    function updateOverviewRow(index, overview) {
+        if (!projectListModel || index < 0 || !overview)
+            return
+        var fields = Object.keys(overview)
+        for (var i = 0; i < fields.length; ++i)
+            projectListModel.setProperty(index, fields[i], overview[fields[i]])
+    }
+
+    function applyProjectUpdate(detail, overview) {
+        if (!detail || !detail.key)
+            return
+        var summary = overview
+        if (!summary && typeof projectLauncher !== "undefined" && projectLauncher.project_overview_for)
+            summary = projectLauncher.project_overview_for(detail.key)
+        var index = indexOfProject(detail.key)
+        if (index !== -1 && summary)
+            updateOverviewRow(index, summary)
+        var next = {}
+        for (var key in projectDetails)
+            next[key] = projectDetails[key]
+        next[detail.key] = detail
+        projectDetails = next
+        updateTagOptions()
+    }
+
+    function loadProjects() {
+        if (typeof projectLauncher === "undefined")
+            return
+        var overview = projectLauncher.project_overview()
+        projectListModel.clear()
+        if (overview) {
+            for (var i = 0; i < overview.length; ++i)
+                projectListModel.append(overview[i])
+        }
+        var details = projectLauncher.project_details()
+        projectDetails = details ? details : ({})
+        updateTagOptions()
+    }
 
     function updateTagOptions() {
         if (!projectModel)
             return
         var seen = {}
-        for (var i = 0; i < projectModel.count; ++i) {
-            var project = projectModel.get(i)
-            if (!project || !project.tags)
-                continue
-            var tags = project.tags.split(',')
+        for (var i = 0; i < projectListModel.count; ++i) {
+            var entry = projectListModel.get(i)
+            var tagText = entry && entry.tags ? entry.tags : ""
+            var tags = tagText.split(",")
+
             for (var j = 0; j < tags.length; ++j) {
                 var tag = tags[j].trim()
                 if (tag.length)
@@ -67,6 +123,7 @@ ApplicationWindow {
         tagOptions = list
     }
 
+    Component.onCompleted: loadProjects()
     Connections {
         target: projectModel
         function onDataChanged() { window.updateTagOptions() }
@@ -74,8 +131,6 @@ ApplicationWindow {
         function onRowsInserted() { window.updateTagOptions() }
         function onRowsRemoved() { window.updateTagOptions() }
     }
-
-    Component.onCompleted: updateTagOptions()
 
     header: ToolBar {
         padding: 12
@@ -135,6 +190,7 @@ ApplicationWindow {
             }
             onShowGlobalDashboard: stackView.push(globalComponent)
             onToggleTheme: window.darkMode = !window.darkMode
+            onProjectStateUpdated: window.applyProjectUpdate(projectDetail, overviewData)
         }
     }
 
@@ -160,6 +216,7 @@ ApplicationWindow {
         ProjectDashboard {
             theme: theme
             onBackRequested: stackView.pop()
+            onProjectStateUpdated: window.applyProjectUpdate(projectDetail, overviewData)
         }
     }
 

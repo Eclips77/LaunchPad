@@ -12,7 +12,7 @@ Rectangle {
     property bool favorite: false
     property string tags: ""
     property var theme
-    signal quickLaunch()
+    signal quickLaunch(var result)
     signal openDetails()
     signal favoriteToggled()
 
@@ -138,7 +138,16 @@ Rectangle {
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
             }
-            onClicked: quickLaunch()
+            onClicked: {
+                if (typeof projectLauncher !== "undefined" && projectLauncher && projectLauncher.launch_project) {
+                    var response = projectLauncher.launch_project(key, lastProfile)
+                    if (response && response.project && response.overview) {
+                        quickLaunch(response)
+                        return
+                    }
+                }
+                quickLaunch({ key: key })
+            }
         }
     }
 

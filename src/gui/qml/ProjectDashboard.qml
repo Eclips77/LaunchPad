@@ -8,6 +8,7 @@ Item {
     property var theme
     property var projectData
     signal backRequested()
+    signal projectStateUpdated(var projectDetail, var overviewData)
 
     property var componentsData: []
     property var healthData: []
@@ -34,6 +35,18 @@ Item {
         historyData = projectData && projectData.history ? projectData.history : []
         linksData = projectData && projectData.quickLinks ? projectData.quickLinks : []
         folderData = projectData && projectData.folders ? projectData.folders : []
+    }
+
+    function handleServiceResult(result) {
+        if (!result || !result.project)
+            return
+        projectData = result.project
+        updateLocalData()
+        var overview = result.overview
+        if (!overview && typeof projectLauncher !== "undefined" && projectLauncher.project_overview_for)
+            overview = projectLauncher.project_overview_for(projectData.key)
+        if (overview)
+            projectStateUpdated(result.project, overview)
     }
 
     onProjectDataChanged: updateLocalData()
@@ -71,7 +84,15 @@ Item {
 
                 Item { Layout.fillWidth: true }
 
-                Button { text: "Quick launch" }
+                Button {
+                    text: "Quick launch"
+                    onClicked: {
+                        if (!projectData || !projectData.key || typeof projectLauncher === "undefined")
+                            return
+                        var profile = projectData.lastProfile ? projectData.lastProfile : projectData.defaultProfile
+                        handleServiceResult(projectLauncher.launch_project(projectData.key, profile))
+                    }
+                }
                 Button { text: "Advanced launch" }
                 Button { text: "Edit" }
                 Button { text: "Delete" }
@@ -188,10 +209,38 @@ Item {
                                     RowLayout {
                                         spacing: 8
 
-                                        Button { text: "Start" }
-                                        Button { text: "Stop" }
-                                        Button { text: "Pause" }
-                                        Button { text: "Resume" }
+                                        Button {
+                                            text: "Start"
+                                            onClicked: {
+                                                if (!projectData || !projectData.key || typeof projectLauncher === "undefined")
+                                                    return
+                                                handleServiceResult(projectLauncher.start_component(projectData.key, model.name))
+                                            }
+                                        }
+                                        Button {
+                                            text: "Stop"
+                                            onClicked: {
+                                                if (!projectData || !projectData.key || typeof projectLauncher === "undefined")
+                                                    return
+                                                handleServiceResult(projectLauncher.stop_component(projectData.key, model.name))
+                                            }
+                                        }
+                                        Button {
+                                            text: "Pause"
+                                            onClicked: {
+                                                if (!projectData || !projectData.key || typeof projectLauncher === "undefined")
+                                                    return
+                                                handleServiceResult(projectLauncher.pause_component(projectData.key, model.name))
+                                            }
+                                        }
+                                        Button {
+                                            text: "Resume"
+                                            onClicked: {
+                                                if (!projectData || !projectData.key || typeof projectLauncher === "undefined")
+                                                    return
+                                                handleServiceResult(projectLauncher.resume_component(projectData.key, model.name))
+                                            }
+                                        }
                                     }
 
                                     ColumnLayout {

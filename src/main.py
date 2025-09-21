@@ -3,6 +3,7 @@ import sys
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 
+from core.launcher import LaunchService
 from core.database import ProjectDatabase
 from gui.project_store import ProjectStore
 from gui import ProjectListModel
@@ -17,6 +18,9 @@ if __name__ == "__main__":
     model = ProjectListModel(database)
 
     engine = QQmlApplicationEngine()
+    context = engine.rootContext()
+    launch_service = LaunchService()
+    context.setContextProperty("projectLauncher", launch_service)
     engine.rootContext().setContextProperty("projectModel", model)
 
     database = ProjectDatabase()
