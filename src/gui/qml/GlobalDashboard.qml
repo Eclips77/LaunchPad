@@ -79,7 +79,7 @@ Item {
 
         ToolBar {
             Layout.fillWidth: true
-            padding: 12
+            Layout.margins: 12
             background: Rectangle { color: Qt.rgba(0, 0, 0, 0) }
 
             RowLayout {
@@ -115,7 +115,7 @@ Item {
             ColumnLayout {
                 width: parent.width
                 spacing: 20
-                padding: 24
+                Layout.margins: 24
 
                 RowLayout {
                     Layout.fillWidth: true

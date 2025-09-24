@@ -133,7 +133,7 @@ ApplicationWindow {
     }
 
     header: ToolBar {
-        padding: 12
+        Layout.margins: 12
         contentHeight: implicitHeight
         background: Rectangle {
             color: Qt.rgba(0, 0, 0, 0)
@@ -161,7 +161,7 @@ ApplicationWindow {
             ToolButton {
                 text: window.darkMode ? "☀️ Light" : "🌙 Dark"
                 onClicked: window.darkMode = !window.darkMode
-                padding: 8
+                Layout.margins: 8
             }
         }
     }
@@ -179,7 +179,6 @@ ApplicationWindow {
             theme: theme
             projectsModel: window.store ? window.store.projectsModel : null
             tagOptions: window.store ? window.store.tagOptions : []
-            projectDetails: window.store ? window.store.projectDetails : ({})
             onCreateProjectRequested: stackView.push(wizardComponent)
             onOpenProject: function(projectKey) {
                 var details = window.store && window.store.projectDetails ? window.store.projectDetails[projectKey] : null
@@ -225,7 +224,6 @@ ApplicationWindow {
         GlobalDashboard {
             theme: theme
             projectsModel: window.store ? window.store.projectsModel : null
-            projectDetails: window.store ? window.store.projectDetails : ({})
             onBackRequested: stackView.pop()
             onOpenProject: function(projectKey) {
                 var details = window.store && window.store.projectDetails ? window.store.projectDetails[projectKey] : null

@@ -181,7 +181,7 @@ Item {
 
         ToolBar {
             Layout.fillWidth: true
-            padding: 12
+            Layout.margins: 12
             background: Rectangle { color: Qt.rgba(0, 0, 0, 0) }
 
             RowLayout {
@@ -265,14 +265,15 @@ Item {
                             ColumnLayout {
                                 width: parent.width
                                 spacing: 16
-                                padding: 24
+                                Layout.margins: 24
                                 GroupBox {
                                     title: "Basic information"
                                     Layout.fillWidth: true
                                     ColumnLayout {
                                         spacing: 12
                                         Layout.fillWidth: true
-                                        FormLayout {
+                                        GridLayout {
+                                            columns: 2
                                             Layout.fillWidth: true
                                             Label { text: "Project name" }
                                             TextField { text: wizardData.name; Layout.fillWidth: true; onTextChanged: wizardData.name = text }
@@ -282,7 +283,7 @@ Item {
                                             TextField { text: wizardData.tags; Layout.fillWidth: true; placeholderText: "comma,separated"; onTextChanged: wizardData.tags = text }
                                             Label { text: "Template" }
                                             ComboBox { model: ["None", "Python FastAPI", "Node + Vite", "Full-stack Docker"]; Layout.fillWidth: true; onActivated: wizardData.template = currentText; Component.onCompleted: currentIndex = 0 }
-                                            Label { text: "Description" }
+                                            Label { text: "Description"; Layout.alignment: Qt.AlignTop }
                                             TextArea { text: wizardData.description; Layout.fillWidth: true; implicitHeight: 80; wrapMode: TextEdit.Wrap; onTextChanged: wizardData.description = text }
                                         }
                                     }
@@ -299,7 +300,7 @@ Item {
                             ColumnLayout {
                                 width: parent.width
                                 spacing: 16
-                                padding: 24
+                                Layout.margins: 24
                                 RowLayout {
                                     Layout.fillWidth: true
                                     spacing: 12
@@ -339,7 +340,7 @@ Item {
                             ColumnLayout {
                                 width: parent.width
                                 spacing: 16
-                                padding: 24
+                                Layout.margins: 24
                                 RowLayout {
                                     Layout.fillWidth: true
                                     spacing: 12
@@ -377,7 +378,7 @@ Item {
                             ColumnLayout {
                                 width: parent.width
                                 spacing: 16
-                                padding: 24
+                                Layout.margins: 24
                                 RowLayout {
                                     Layout.fillWidth: true
                                     spacing: 12
@@ -410,7 +411,7 @@ Item {
                             ColumnLayout {
                                 width: parent.width
                                 spacing: 16
-                                padding: 24
+                                Layout.margins: 24
                                 RowLayout {
                                     Layout.fillWidth: true
                                     spacing: 12
@@ -461,7 +462,7 @@ Item {
                             ColumnLayout {
                                 width: parent.width
                                 spacing: 16
-                                padding: 24
+                                Layout.margins: 24
                                 Label { text: "Review"; font.pixelSize: 22; font.bold: true }
                                 GroupBox {
                                     title: "Summary"

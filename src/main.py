@@ -6,7 +6,6 @@ from PySide6.QtQml import QQmlApplicationEngine
 from core.launcher import LaunchService
 from core.database import ProjectDatabase
 from gui.project_store import ProjectStore
-from gui import ProjectListModel
 
 if __name__ == "__main__":
     # Set the QtQuick Controls style
@@ -14,18 +13,20 @@ if __name__ == "__main__":
 
     app = QGuiApplication(sys.argv)
 
+    # Create single database instance
     database = ProjectDatabase()
-    model = ProjectListModel(database)
-
+    
     engine = QQmlApplicationEngine()
     context = engine.rootContext()
+    
+    # Create services
     launch_service = LaunchService()
-    context.setContextProperty("projectLauncher", launch_service)
-    engine.rootContext().setContextProperty("projectModel", model)
-
-    database = ProjectDatabase()
     project_store = ProjectStore(database=database)
-    engine.rootContext().setContextProperty("projectStore", project_store)
+    
+    # Set context properties
+    context.setContextProperty("projectLauncher", launch_service)
+    context.setContextProperty("projectStore", project_store)
+    context.setContextProperty("projectModel", project_store.projectsModel)
 
     # Construct the absolute path to the main QML file
     qml_file = os.path.join(os.path.dirname(__file__), "gui", "qml", "main.qml")
