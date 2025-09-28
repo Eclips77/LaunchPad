@@ -3,13 +3,15 @@ import uuid
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+from PIL import Image
 
 # Configuration
-UPLOAD_FOLDER = os.environ.get("MEDIA_ROOT", "media/uploads")
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+UPLOAD_FOLDER = os.environ.get("MEDIA_ROOT", os.path.join(PROJECT_ROOT, "media", "uploads"))
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5 MB
 
-app = Flask(__name__, static_folder='../frontend/build')
+app = Flask(__name__, static_folder=os.path.join(PROJECT_ROOT, 'frontend', 'build'))
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 
@@ -43,16 +45,17 @@ def upload_image():
         # Save the file
         file.save(filepath)
 
-        # In a real application, you might want to get image dimensions
-        # from PIL import Image
-        # with Image.open(filepath) as img:
-        #     width, height = img.size
-
-        # For now, returning placeholder dimensions
-        width, height = 0, 0
+        # Get image dimensions using Pillow
+        try:
+            with Image.open(filepath) as img:
+                width, height = img.size
+        except IOError:
+            # If the file cannot be opened, it's not a valid image.
+            # You might want to delete the file and return an error.
+            os.remove(filepath)
+            return jsonify({"error": "Invalid image file"}), 400
 
         # Create a URL for the uploaded file
-        # Note: This requires a static file route to be set up
         file_url = f"/media/uploads/{unique_filename}"
 
         return jsonify({

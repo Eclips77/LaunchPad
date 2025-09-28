@@ -1,3 +1,6 @@
 Flask
 Flask-Cors
+pytest
+PySide6
 toml
+Pillow
